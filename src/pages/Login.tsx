@@ -1,12 +1,13 @@
 
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Shield, Eye, EyeOff, User, Mail, UserX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 const Login = () => {
+  const navigate = useNavigate();
   const [loginType, setLoginType] = useState<'anonymous' | 'fake' | 'real'>('anonymous');
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -26,6 +27,14 @@ const Login = () => {
     e.preventDefault();
     // Handle login logic here
     console.log('Login attempt:', { loginType, formData });
+    // Redirect to complaint form after login
+    navigate('/complaint');
+  };
+
+  const handleAnonymousLogin = () => {
+    console.log('Proceeding anonymously');
+    // Redirect to complaint form
+    navigate('/complaint');
   };
 
   return (
@@ -224,7 +233,7 @@ const Login = () => {
           {loginType === 'anonymous' && (
             <div className="bg-white rounded-lg shadow-md p-6">
               <Button
-                onClick={() => console.log('Proceeding anonymously')}
+                onClick={handleAnonymousLogin}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white"
               >
                 Continue Anonymously
