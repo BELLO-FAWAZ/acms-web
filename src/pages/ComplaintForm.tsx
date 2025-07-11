@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { containsProfanity, getProfanityWords } from "@/utils/profanityFilter";
 
 const ComplaintForm = () => {
   const navigate = useNavigate();
@@ -37,6 +38,17 @@ const ComplaintForm = () => {
   };
 
   const handleInputChange = (field: string, value: string) => {
+    // Check for profanity in description field
+    if (field === 'description' && containsProfanity(value)) {
+      const profanityWords = getProfanityWords(value);
+      toast({
+        title: "Inappropriate language detected",
+        description: `Please remove inappropriate words: ${profanityWords.join(', ')}`,
+        variant: "destructive"
+      });
+      return;
+    }
+
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -74,6 +86,17 @@ const ComplaintForm = () => {
     if (!formData.category || !formData.priority || !formData.description.trim()) {
       return false;
     }
+    
+    // Final profanity check before submission
+    if (containsProfanity(formData.description)) {
+      toast({
+        title: "Inappropriate language detected",
+        description: "Please remove inappropriate language from your complaint before submitting.",
+        variant: "destructive"
+      });
+      return false;
+    }
+    
     return true;
   };
 
@@ -115,14 +138,26 @@ const ComplaintForm = () => {
                 <span className="text-xl font-bold text-gray-900">ACMS</span>
               </Link>
               <div className="flex items-center space-x-4">
+                <Link to="/" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                  Home
+                </Link>
+                <Link to="/complaint" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                  Submit
+                </Link>
                 <Link to="/status" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
-                  Check Status
+                  Track Complaint
                 </Link>
                 <Link to="/chat" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
                   Chat
                 </Link>
                 <Link to="/poll" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
                   Polls
+                </Link>
+                <Link to="/login" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                  Log In
+                </Link>
+                <Link to="/admin" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                  Admin
                 </Link>
                 <Button 
                   onClick={() => navigate('/')}
@@ -205,14 +240,26 @@ const ComplaintForm = () => {
               <span className="text-xl font-bold text-gray-900">ACMS</span>
             </Link>
             <div className="flex items-center space-x-4">
+              <Link to="/" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                Home
+              </Link>
+              <Link to="/complaint" className="text-blue-600 px-3 py-2 text-sm font-medium">
+                Submit
+              </Link>
               <Link to="/status" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
-                Check Status
+                Track Complaint
               </Link>
               <Link to="/chat" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
                 Chat
               </Link>
               <Link to="/poll" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
                 Polls
+              </Link>
+              <Link to="/login" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                Log In
+              </Link>
+              <Link to="/admin" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                Admin
               </Link>
               <Button 
                 onClick={() => navigate('/')}
