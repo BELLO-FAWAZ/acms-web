@@ -1,7 +1,6 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Shield, Upload, X, Check, AlertCircle } from "lucide-react";
+import { Shield, Upload, X, Check, AlertCircle, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +13,7 @@ const ComplaintForm = () => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [trackingId, setTrackingId] = useState('');
   const [formData, setFormData] = useState({
     category: '',
     priority: '',
@@ -21,6 +21,20 @@ const ComplaintForm = () => {
     contactEmail: '',
     attachments: [] as File[]
   });
+
+  const generateTrackingId = () => {
+    const year = new Date().getFullYear();
+    const randomNum = Math.floor(Math.random() * 9000) + 1000;
+    return `ACMS-${year}-${randomNum}`;
+  };
+
+  const copyTrackingId = () => {
+    navigator.clipboard.writeText(trackingId);
+    toast({
+      title: "Copied!",
+      description: "Tracking ID copied to clipboard",
+    });
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -77,11 +91,15 @@ const ComplaintForm = () => {
 
     setIsSubmitting(true);
     
+    // Generate tracking ID
+    const newTrackingId = generateTrackingId();
+    
     // Simulate form submission
     setTimeout(() => {
       setIsSubmitting(false);
+      setTrackingId(newTrackingId);
       setShowConfirmation(true);
-      console.log('Complaint submitted:', formData);
+      console.log('Complaint submitted:', { ...formData, trackingId: newTrackingId });
     }, 2000);
   };
 
@@ -96,13 +114,24 @@ const ComplaintForm = () => {
                 <Shield className="h-8 w-8 text-blue-600 mr-3" />
                 <span className="text-xl font-bold text-gray-900">ACMS</span>
               </Link>
-              <Button 
-                onClick={() => navigate('/')}
-                variant="outline"
-                className="border-blue-600 text-blue-600 hover:bg-blue-50"
-              >
-                Back to Home
-              </Button>
+              <div className="flex items-center space-x-4">
+                <Link to="/status" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                  Check Status
+                </Link>
+                <Link to="/chat" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                  Chat
+                </Link>
+                <Link to="/poll" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                  Polls
+                </Link>
+                <Button 
+                  onClick={() => navigate('/')}
+                  variant="outline"
+                  className="border-blue-600 text-blue-600 hover:bg-blue-50"
+                >
+                  Home
+                </Button>
+              </div>
             </div>
           </div>
         </nav>
@@ -117,15 +146,47 @@ const ComplaintForm = () => {
               <h2 className="text-2xl font-bold text-gray-900 mb-4">
                 Complaint Submitted Successfully
               </h2>
+              
+              {/* Tracking ID Display */}
+              <div className="bg-blue-50 p-4 rounded-lg mb-6">
+                <p className="text-sm text-gray-600 mb-2">Your Tracking ID:</p>
+                <div className="flex items-center justify-center space-x-2">
+                  <code className="text-lg font-mono font-bold text-blue-600 bg-white px-3 py-1 rounded">
+                    {trackingId}
+                  </code>
+                  <Button
+                    onClick={copyTrackingId}
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 w-8 p-0"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">
+                  Save this ID to check your complaint status
+                </p>
+              </div>
+
               <p className="text-gray-600 mb-6">
                 Thank you for submitting your complaint. We have received your information and want to assure you that we take all complaints seriously. Your privacy and confidentiality are our top priorities, and we will work diligently to address your concerns.
               </p>
-              <Button 
-                onClick={() => navigate('/')}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                Return to Home
-              </Button>
+              
+              <div className="space-y-3">
+                <Button 
+                  onClick={() => navigate('/status')}
+                  variant="outline"
+                  className="w-full border-blue-600 text-blue-600 hover:bg-blue-50"
+                >
+                  Check Status
+                </Button>
+                <Button 
+                  onClick={() => navigate('/')}
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  Return to Home
+                </Button>
+              </div>
             </div>
           </div>
         </div>
@@ -143,13 +204,24 @@ const ComplaintForm = () => {
               <Shield className="h-8 w-8 text-blue-600 mr-3" />
               <span className="text-xl font-bold text-gray-900">ACMS</span>
             </Link>
-            <Button 
-              onClick={() => navigate('/')}
-              variant="outline"
-              className="border-blue-600 text-blue-600 hover:bg-blue-50"
-            >
-              Back to Home
-            </Button>
+            <div className="flex items-center space-x-4">
+              <Link to="/status" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                Check Status
+              </Link>
+              <Link to="/chat" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                Chat
+              </Link>
+              <Link to="/poll" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                Polls
+              </Link>
+              <Button 
+                onClick={() => navigate('/')}
+                variant="outline"
+                className="border-blue-600 text-blue-600 hover:bg-blue-50"
+              >
+                Back to Home
+              </Button>
+            </div>
           </div>
         </div>
       </nav>

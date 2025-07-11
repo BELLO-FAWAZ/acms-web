@@ -15,6 +15,15 @@ const Index = () => {
               <span className="text-xl font-bold text-gray-900">ACMS</span>
             </div>
             <div className="flex items-center space-x-4">
+              <Link to="/status" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                Check Status
+              </Link>
+              <Link to="/chat" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                Chat
+              </Link>
+              <Link to="/poll" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+                Polls
+              </Link>
               <Link
                 to="/login"
                 className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
