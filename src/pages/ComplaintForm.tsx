@@ -1,13 +1,17 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Shield, Upload, X, Check, AlertCircle, Copy } from "lucide-react";
+import { Shield, Upload, X, Check, AlertCircle, Copy, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
 import { containsProfanity, getProfanityWords } from "@/utils/profanityFilter";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 const ComplaintForm = () => {
   const navigate = useNavigate();
@@ -20,6 +24,7 @@ const ComplaintForm = () => {
     category: '',
     recipient: '',
     priority: '',
+    expectedResolutionDate: undefined as Date | undefined,
     description: '',
     location: '',
     contactEmail: '',
@@ -40,9 +45,9 @@ const ComplaintForm = () => {
     });
   };
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | Date | undefined) => {
     // Check for profanity in title and description fields
-    if ((field === 'title' || field === 'description') && containsProfanity(value)) {
+    if (typeof value === 'string' && (field === 'title' || field === 'description') && containsProfanity(value)) {
       const profanityWords = getProfanityWords(value);
       toast({
         title: "Inappropriate language detected",
@@ -362,8 +367,43 @@ const ComplaintForm = () => {
                   <SelectItem value="low">Low</SelectItem>
                   <SelectItem value="medium">Medium</SelectItem>
                   <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="urgent">Urgent</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Expected Resolution Date */}
+            <div>
+              <Label htmlFor="expected-date">
+                Expected Resolution Date (Optional)
+              </Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal mt-1",
+                      !formData.expectedResolutionDate && "text-muted-foreground"
+                    )}
+                  >
+                    <Calendar className="mr-2 h-4 w-4" />
+                    {formData.expectedResolutionDate ? format(formData.expectedResolutionDate, "PPP") : <span>Pick a date</span>}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <CalendarComponent
+                    mode="single"
+                    selected={formData.expectedResolutionDate}
+                    onSelect={(date) => handleInputChange('expectedResolutionDate', date)}
+                    disabled={(date) => date < new Date()}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+              <p className="text-sm text-gray-600 mt-1">
+                When would you like this complaint to be resolved?
+              </p>
             </div>
 
             {/* Location (Optional) */}
