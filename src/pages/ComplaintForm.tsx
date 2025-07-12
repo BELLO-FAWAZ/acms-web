@@ -16,9 +16,12 @@ const ComplaintForm = () => {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [trackingId, setTrackingId] = useState('');
   const [formData, setFormData] = useState({
+    title: '',
     category: '',
+    recipient: '',
     priority: '',
     description: '',
+    location: '',
     contactEmail: '',
     attachments: [] as File[]
   });
@@ -38,8 +41,8 @@ const ComplaintForm = () => {
   };
 
   const handleInputChange = (field: string, value: string) => {
-    // Check for profanity in description field
-    if (field === 'description' && containsProfanity(value)) {
+    // Check for profanity in title and description fields
+    if ((field === 'title' || field === 'description') && containsProfanity(value)) {
       const profanityWords = getProfanityWords(value);
       toast({
         title: "Inappropriate language detected",
@@ -83,12 +86,12 @@ const ComplaintForm = () => {
   };
 
   const validateForm = () => {
-    if (!formData.category || !formData.priority || !formData.description.trim()) {
+    if (!formData.title.trim() || !formData.category || !formData.recipient || !formData.priority || !formData.description.trim()) {
       return false;
     }
     
     // Final profanity check before submission
-    if (containsProfanity(formData.description)) {
+    if (containsProfanity(formData.title) || containsProfanity(formData.description)) {
       toast({
         title: "Inappropriate language detected",
         description: "Please remove inappropriate language from your complaint before submitting.",
@@ -286,6 +289,21 @@ const ComplaintForm = () => {
 
         <div className="bg-white rounded-lg shadow-md p-6">
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Complaint Title */}
+            <div>
+              <Label htmlFor="title">
+                Complaint Title <span className="text-red-500">*</span>
+              </Label>
+              <Input
+                id="title"
+                placeholder="Brief title describing your complaint"
+                value={formData.title}
+                onChange={(e) => handleInputChange('title', e.target.value)}
+                className="mt-1"
+                required
+              />
+            </div>
+
             {/* Category Selection */}
             <div>
               <Label htmlFor="category">
@@ -296,10 +314,37 @@ const ComplaintForm = () => {
                   <SelectValue placeholder="Select complaint category" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="academic">Academic</SelectItem>
-                  <SelectItem value="facility">Facility</SelectItem>
-                  <SelectItem value="staff">Staff</SelectItem>
+                  <SelectItem value="harassment">Harassment</SelectItem>
+                  <SelectItem value="bullying">Bullying</SelectItem>
+                  <SelectItem value="discrimination">Discrimination</SelectItem>
+                  <SelectItem value="academic-misconduct">Academic Misconduct</SelectItem>
+                  <SelectItem value="facility-issues">Facility Issues</SelectItem>
+                  <SelectItem value="staff-conduct">Staff Conduct</SelectItem>
+                  <SelectItem value="safety-concerns">Safety Concerns</SelectItem>
+                  <SelectItem value="financial-issues">Financial Issues</SelectItem>
                   <SelectItem value="others">Others</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Recipient Selection */}
+            <div>
+              <Label htmlFor="recipient">
+                Send Complaint To <span className="text-red-500">*</span>
+              </Label>
+              <Select value={formData.recipient} onValueChange={(value) => handleInputChange('recipient', value)}>
+                <SelectTrigger className="mt-1">
+                  <SelectValue placeholder="Select who should receive this complaint" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="vice-chancellor">Vice Chancellor</SelectItem>
+                  <SelectItem value="chief-security-officer">Chief Security Officer</SelectItem>
+                  <SelectItem value="student-affairs">Student Affairs</SelectItem>
+                  <SelectItem value="head-of-department">Head of Department</SelectItem>
+                  <SelectItem value="dean-of-faculty">Dean of Faculty</SelectItem>
+                  <SelectItem value="registrar">Registrar</SelectItem>
+                  <SelectItem value="counseling-services">Counseling Services</SelectItem>
+                  <SelectItem value="facilities-management">Facilities Management</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -319,6 +364,23 @@ const ComplaintForm = () => {
                   <SelectItem value="high">High</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+
+            {/* Location (Optional) */}
+            <div>
+              <Label htmlFor="location">
+                Location (Optional)
+              </Label>
+              <Input
+                id="location"
+                placeholder="Where did this incident occur? (e.g., Library, Cafeteria, Lecture Hall A)"
+                value={formData.location}
+                onChange={(e) => handleInputChange('location', e.target.value)}
+                className="mt-1"
+              />
+              <p className="text-sm text-gray-600 mt-1">
+                Providing the location helps us investigate and address the issue more effectively
+              </p>
             </div>
 
             {/* Detailed Description */}
