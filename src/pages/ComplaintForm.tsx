@@ -12,10 +12,13 @@ import { useToast } from "@/hooks/use-toast";
 import { containsProfanity, getProfanityWords } from "@/utils/profanityFilter";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const ComplaintForm = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [trackingId, setTrackingId] = useState('');
@@ -30,12 +33,6 @@ const ComplaintForm = () => {
     contactEmail: '',
     attachments: [] as File[]
   });
-
-  const generateTrackingId = () => {
-    const year = new Date().getFullYear();
-    const randomNum = Math.floor(Math.random() * 9000) + 1000;
-    return `ACMS-${year}-${randomNum}`;
-  };
 
   const copyTrackingId = () => {
     navigator.clipboard.writeText(trackingId);
@@ -122,16 +119,57 @@ const ComplaintForm = () => {
 
     setIsSubmitting(true);
     
-    // Generate tracking ID
-    const newTrackingId = generateTrackingId();
-    
-    // Simulate form submission
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setTrackingId(newTrackingId);
+    try {
+      // Insert complaint into database
+      const { data: complaint, error } = await supabase
+        .from('complaints')
+        .insert({
+          user_id: user?.id || null,
+          title: formData.title,
+          category: formData.category,
+          recipient: formData.recipient,
+          priority: formData.priority,
+          description: formData.description,
+          location: formData.location || null,
+          contact_email: formData.contactEmail || null,
+          expected_resolution_date: formData.expectedResolutionDate || null,
+        })
+        .select('tracking_id')
+        .single();
+
+      if (error) {
+        console.error('Error submitting complaint:', error);
+        toast({
+          title: "Submission failed",
+          description: "There was an error submitting your complaint. Please try again.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // TODO: Handle file attachments here when storage is set up
+      if (formData.attachments.length > 0) {
+        console.log('File attachments will be handled when storage is configured');
+      }
+
+      setTrackingId(complaint.tracking_id);
       setShowConfirmation(true);
-      console.log('Complaint submitted:', { ...formData, trackingId: newTrackingId });
-    }, 2000);
+      
+      toast({
+        title: "Complaint submitted successfully",
+        description: `Your tracking ID is: ${complaint.tracking_id}`,
+      });
+
+    } catch (error) {
+      console.error('Unexpected error:', error);
+      toast({
+        title: "Submission failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (showConfirmation) {
