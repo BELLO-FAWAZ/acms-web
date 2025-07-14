@@ -121,7 +121,7 @@ const ComplaintForm = () => {
     
     try {
       // Insert complaint into database
-      const { data: complaint, error } = await supabase
+      const { data: complaint, error } = await (supabase as any)
         .from('complaints')
         .insert({
           user_id: user?.id || null,
@@ -152,13 +152,15 @@ const ComplaintForm = () => {
         console.log('File attachments will be handled when storage is configured');
       }
 
-      setTrackingId(complaint.tracking_id);
-      setShowConfirmation(true);
-      
-      toast({
-        title: "Complaint submitted successfully",
-        description: `Your tracking ID is: ${complaint.tracking_id}`,
-      });
+      if (complaint?.tracking_id) {
+        setTrackingId(complaint.tracking_id);
+        setShowConfirmation(true);
+        
+        toast({
+          title: "Complaint submitted successfully",
+          description: `Your tracking ID is: ${complaint.tracking_id}`,
+        });
+      }
 
     } catch (error) {
       console.error('Unexpected error:', error);

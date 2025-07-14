@@ -38,7 +38,7 @@ const StatusCheck = () => {
     setComplaint(null);
     
     try {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('complaints')
         .select('*')
         .eq('tracking_id', trackingId.trim())
