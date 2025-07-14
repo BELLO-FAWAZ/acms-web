@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Upload, AlertCircle } from "lucide-react";
@@ -23,6 +24,7 @@ const ComplaintForm = () => {
     title: '',
     description: '',
     category: '',
+    department: '',
     priority: 'medium',
     location: '',
     anonymousName: ''
@@ -56,6 +58,7 @@ const ComplaintForm = () => {
         title: formData.title,
         description: formData.description,
         category: formData.category,
+        department: formData.department,
         priority: formData.priority,
         location: formData.location,
         status: 'pending',
@@ -168,6 +171,28 @@ const ComplaintForm = () => {
                   className="mt-1"
                   required
                 />
+              </div>
+
+              {/* Department Field */}
+              <div>
+                <Label htmlFor="department">Department/Recipient *</Label>
+                <Select onValueChange={(value) => handleSelectChange('department', value)} required>
+                  <SelectTrigger className="mt-1">
+                    <SelectValue placeholder="Select department to handle your complaint" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="academic-affairs">Academic Affairs</SelectItem>
+                    <SelectItem value="student-services">Student Services</SelectItem>
+                    <SelectItem value="administration">Administration</SelectItem>
+                    <SelectItem value="facilities">Facilities Management</SelectItem>
+                    <SelectItem value="hr">Human Resources</SelectItem>
+                    <SelectItem value="it-support">IT Support</SelectItem>
+                    <SelectItem value="financial-aid">Financial Aid</SelectItem>
+                    <SelectItem value="registrar">Registrar's Office</SelectItem>
+                    <SelectItem value="security">Campus Security</SelectItem>
+                    <SelectItem value="dean-office">Dean's Office</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Category Field */}
