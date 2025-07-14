@@ -18,9 +18,6 @@ const Index = () => {
               <Link to="/" className="text-blue-600 px-3 py-2 text-sm font-medium">
                 Home
               </Link>
-              <Link to="/complaint" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
-                Submit
-              </Link>
               <Link to="/status" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
                 Track Complaint
               </Link>
@@ -30,15 +27,9 @@ const Index = () => {
               <Link to="/poll" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
                 Polls
               </Link>
-              <Link to="/login" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
-                Log In
-              </Link>
-              <Link to="/admin" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
-                Admin
-              </Link>
               <Link to="/login">
                 <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                  Get Started
+                  Submit Complaint
                 </Button>
               </Link>
             </div>

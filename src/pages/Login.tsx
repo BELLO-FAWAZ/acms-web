@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import Navbar from "@/components/Navbar";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ const Login = () => {
   // Redirect if user is already logged in
   useEffect(() => {
     if (user) {
-      navigate('/complaint');
+      navigate('/dashboard');
     }
   }, [user, navigate]);
 
@@ -68,7 +69,7 @@ const Login = () => {
             title: "Welcome back!",
             description: "You have successfully logged in.",
           });
-          navigate('/complaint');
+          navigate('/dashboard');
         }
       }
     } catch (error) {
@@ -89,23 +90,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100">
-      {/* Navigation */}
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="flex items-center">
-              <Shield className="h-8 w-8 text-blue-600 mr-3" />
-              <span className="text-xl font-bold text-gray-900">ACMS</span>
-            </Link>
-            <Link
-              to="/"
-              className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium transition-colors"
-            >
-              Back to Home
-            </Link>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Login Form */}
       <div className="flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -165,7 +150,7 @@ const Login = () => {
                   <Mail className="h-5 w-5 text-gray-600" />
                   <div>
                     <h3 className="font-medium text-gray-900">Login with Account</h3>
-                    <p className="text-sm text-gray-600">Track your complaints and get updates</p>
+                    <p className="text-sm text-gray-600">Access dashboard and track complaints</p>
                   </div>
                 </div>
               </div>

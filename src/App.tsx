@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
 import ComplaintForm from "./pages/ComplaintForm";
 import StatusCheck from "./pages/StatusCheck";
 import Chat from "./pages/Chat";
@@ -26,6 +27,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/complaint" element={<ComplaintForm />} />
             <Route path="/status" element={<StatusCheck />} />
             <Route path="/chat" element={<Chat />} />
