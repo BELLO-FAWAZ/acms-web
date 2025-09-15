@@ -22,8 +22,8 @@ const Admin = () => {
   // Redirect if user is already logged in
   useEffect(() => {
     if (user) {
-      // Here you could check if user has admin role
-      navigate('/complaint');
+      // Redirect to admin dashboard
+      navigate('/admin/dashboard');
     }
   }, [user, navigate]);
 
@@ -44,7 +44,7 @@ const Admin = () => {
           title: "Admin Login Successful",
           description: "Welcome to the admin panel.",
         });
-        navigate('/complaint'); // Or redirect to admin dashboard
+        navigate('/admin/dashboard');
       }
     } catch (error) {
       toast({
