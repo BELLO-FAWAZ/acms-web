@@ -273,6 +273,16 @@ const Login = () => {
               </p>
             </div>
           )}
+
+          {/* Admin Login Link */}
+          <div className="text-center">
+            <Link 
+              to="/admin" 
+              className="text-sm text-gray-500 hover:text-blue-600 transition-colors"
+            >
+              Administrator? Click here to login
+            </Link>
+          </div>
         </div>
       </div>
     </div>

@@ -119,6 +119,14 @@ const Navbar = ({ showAuthenticatedNav = false }: NavbarProps) => {
                 >
                   Polls
                 </Link>
+                <Link 
+                  to="/admin" 
+                  className={`px-3 py-2 text-sm font-medium transition-colors ${
+                    isActive('/admin') ? 'text-blue-600' : 'text-gray-700 hover:text-blue-600'
+                  }`}
+                >
+                  Admin
+                </Link>
                 <Link to="/login">
                   <Button className="bg-blue-600 hover:bg-blue-700 text-white">
                     Submit Complaint
