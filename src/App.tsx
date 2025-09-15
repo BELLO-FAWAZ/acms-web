@@ -14,6 +14,7 @@ import Chat from "./pages/Chat";
 import Poll from "./pages/Poll";
 import Admin from "./pages/Admin";
 import AdminDashboard from "./pages/AdminDashboard";
+import ComplaintDetails from "./pages/ComplaintDetails";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
             <Route path="/poll" element={<Poll />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/admin/dashboard" element={<AdminDashboard />} />
+            <Route path="/admin/complaint/:id" element={<ComplaintDetails />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

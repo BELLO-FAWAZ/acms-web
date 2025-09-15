@@ -305,7 +305,11 @@ const AdminDashboard = () => {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Button variant="ghost" size="sm">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => navigate(`/admin/complaint/${complaint.id}`)}
+                        >
                           <Eye className="h-4 w-4 mr-1" />
                           View Details
                         </Button>
