@@ -34,6 +34,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/hooks/useRole";
@@ -52,6 +63,8 @@ interface Complaint {
   user_id: string | null;
   anonymous_name: string | null;
   description: string;
+  admin_notes: string | null;
+  resolution_notes: string | null;
 }
 
 interface Poll {
@@ -101,6 +114,10 @@ const AdminDashboard = () => {
     pending_complaints: 0,
     active_polls: 0
   });
+  const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
+  const [responseDialogOpen, setResponseDialogOpen] = useState(false);
+  const [adminResponse, setAdminResponse] = useState("");
+  const [statusUpdate, setStatusUpdate] = useState("");
 
   useEffect(() => {
     if (!roleLoading && !isAdmin) {
@@ -205,7 +222,10 @@ const AdminDashboard = () => {
     try {
       const { error } = await (supabase as any)
         .from('complaints')
-        .update({ status: newStatus })
+        .update({ 
+          status: newStatus,
+          updated_at: new Date().toISOString()
+        })
         .eq('id', complaintId);
 
       if (error) throw error;
@@ -220,6 +240,46 @@ const AdminDashboard = () => {
       toast({
         title: "Error",
         description: error.message || "Failed to update status",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const openResponseDialog = (complaint: Complaint) => {
+    setSelectedComplaint(complaint);
+    setAdminResponse(complaint.admin_notes || "");
+    setStatusUpdate(complaint.status);
+    setResponseDialogOpen(true);
+  };
+
+  const submitResponse = async () => {
+    if (!selectedComplaint) return;
+
+    try {
+      const { error } = await (supabase as any)
+        .from('complaints')
+        .update({ 
+          admin_notes: adminResponse,
+          status: statusUpdate,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', selectedComplaint.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Response Submitted",
+        description: "Admin response and status have been updated successfully.",
+      });
+
+      setResponseDialogOpen(false);
+      setSelectedComplaint(null);
+      setAdminResponse("");
+      fetchAllData(); // Refresh the data
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to submit response",
         variant: "destructive"
       });
     }
@@ -529,14 +589,24 @@ const AdminDashboard = () => {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <Button 
-                            variant="ghost" 
-                            size="sm"
-                            onClick={() => navigate(`/admin/complaint/${complaint.id}`)}
-                          >
-                            <Eye className="h-4 w-4 mr-1" />
-                            View Details
-                          </Button>
+                          <div className="flex space-x-2">
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => navigate(`/admin/complaint/${complaint.id}`)}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              View Details
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => openResponseDialog(complaint)}
+                            >
+                              <MessageSquare className="h-4 w-4 mr-1" />
+                              Respond
+                            </Button>
+                          </div>
                         </TableCell>
                       </TableRow>
                     ))}
@@ -546,6 +616,61 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
         )}
+
+        {/* Response Dialog */}
+        <Dialog open={responseDialogOpen} onOpenChange={setResponseDialogOpen}>
+          <DialogContent className="sm:max-w-[525px]">
+            <DialogHeader>
+              <DialogTitle>Respond to Complaint</DialogTitle>
+              <DialogDescription>
+                Add your response and update the status for complaint: {selectedComplaint?.tracking_id}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select value={statusUpdate} onValueChange={setStatusUpdate}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="in_progress">In Progress</SelectItem>
+                    <SelectItem value="resolved">Resolved</SelectItem>
+                    <SelectItem value="closed">Closed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="response">Admin Response</Label>
+                <Textarea
+                  id="response"
+                  placeholder="Type your response to the student here..."
+                  value={adminResponse}
+                  onChange={(e) => setAdminResponse(e.target.value)}
+                  rows={6}
+                />
+              </div>
+              <div className="text-sm text-muted-foreground">
+                <strong>Original Complaint:</strong> {selectedComplaint?.title}
+              </div>
+              <div className="text-sm text-muted-foreground">
+                {selectedComplaint?.description}
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setResponseDialogOpen(false)}
+              >
+                Cancel
+              </Button>
+              <Button onClick={submitResponse}>
+                Submit Response
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Polls Tab */}
         {activeTab === 'polls' && (

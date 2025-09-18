@@ -17,6 +17,14 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import Navbar from "@/components/Navbar";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRole } from "@/hooks/useRole";
@@ -61,6 +69,7 @@ const ComplaintDetails = () => {
   const [loading, setLoading] = useState(true);
   const [adminNotes, setAdminNotes] = useState("");
   const [resolutionNotes, setResolutionNotes] = useState("");
+  const [currentStatus, setCurrentStatus] = useState("");
 
   useEffect(() => {
     if (!roleLoading && !isAdmin) {
@@ -88,6 +97,7 @@ const ComplaintDetails = () => {
       setComplaint(complaintData);
       setAdminNotes(complaintData.admin_notes || "");
       setResolutionNotes(complaintData.resolution_notes || "");
+      setCurrentStatus(complaintData.status);
 
       // Fetch attachments
       const { data: attachmentData, error: attachmentError } = await (supabase as any)
@@ -110,7 +120,7 @@ const ComplaintDetails = () => {
     }
   };
 
-  const updateNotes = async () => {
+  const updateComplaint = async () => {
     if (!complaint) return;
 
     try {
@@ -118,22 +128,24 @@ const ComplaintDetails = () => {
         .from('complaints')
         .update({ 
           admin_notes: adminNotes,
-          resolution_notes: resolutionNotes
+          resolution_notes: resolutionNotes,
+          status: currentStatus,
+          updated_at: new Date().toISOString()
         })
         .eq('id', complaint.id);
 
       if (error) throw error;
 
       toast({
-        title: "Notes Updated",
-        description: "Admin notes and resolution notes have been saved.",
+        title: "Complaint Updated",
+        description: "Status, admin notes and resolution notes have been saved.",
       });
 
       fetchComplaintDetails(); // Refresh data
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Failed to update notes",
+        description: error.message || "Failed to update complaint",
         variant: "destructive"
       });
     }
@@ -293,9 +305,6 @@ const ComplaintDetails = () => {
                   </CardDescription>
                 </div>
                 <div className="flex gap-2">
-                  <Badge variant={getStatusColor(complaint.status)}>
-                    {complaint.status.replace('_', ' ')}
-                  </Badge>
                   <Badge variant={getPriorityColor(complaint.priority)}>
                     {complaint.priority} priority
                   </Badge>
@@ -405,17 +414,34 @@ const ComplaintDetails = () => {
             </CardContent>
           </Card>
 
-          {/* Admin Notes */}
+          {/* Admin Management */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
                 <MessageSquare className="h-5 w-5 mr-2" />
-                Admin Notes
+                Admin Management
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label>Status</Label>
+                <Select value={currentStatus} onValueChange={setCurrentStatus}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="in_progress">In Progress</SelectItem>
+                    <SelectItem value="resolved">Resolved</SelectItem>
+                    <SelectItem value="closed">Closed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Separator />
+
               <div>
-                <label className="text-sm font-medium mb-2 block">Internal Notes</label>
+                <Label className="text-sm font-medium mb-2 block">Internal Notes</Label>
                 <Textarea
                   placeholder="Add internal notes about this complaint..."
                   value={adminNotes}
@@ -427,7 +453,7 @@ const ComplaintDetails = () => {
               <Separator />
               
               <div>
-                <label className="text-sm font-medium mb-2 block">Resolution Notes</label>
+                <Label className="text-sm font-medium mb-2 block">Resolution Notes</Label>
                 <Textarea
                   placeholder="Add resolution details (visible to user)..."
                   value={resolutionNotes}
@@ -436,8 +462,8 @@ const ComplaintDetails = () => {
                 />
               </div>
               
-              <Button onClick={updateNotes} className="w-full">
-                Save Notes
+              <Button onClick={updateComplaint} className="w-full">
+                Update Complaint
               </Button>
             </CardContent>
           </Card>
