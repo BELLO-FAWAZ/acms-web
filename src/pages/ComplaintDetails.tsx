@@ -10,7 +10,12 @@ import {
   AlertTriangle,
   Download,
   Eye,
-  MessageSquare
+  MessageSquare,
+  PlayCircle,
+  Volume2,
+  FileVideo,
+  FileAudio,
+  Image as ImageIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -222,6 +227,71 @@ const ComplaintDetails = () => {
     return Math.round(bytes / (1024 * 1024)) + ' MB';
   };
 
+  const getFileIcon = (fileType: string, fileName: string) => {
+    if (fileType.startsWith('image/')) {
+      return <ImageIcon className="h-4 w-4 text-blue-500" />;
+    }
+    if (fileType.startsWith('audio/') || fileName.match(/\.(mp3|wav|ogg|m4a|aac|flac)$/i)) {
+      return <FileAudio className="h-4 w-4 text-green-500" />;
+    }
+    if (fileType.startsWith('video/') || fileName.match(/\.(mp4|avi|mov|wmv|flv|webm|mkv)$/i)) {
+      return <FileVideo className="h-4 w-4 text-purple-500" />;
+    }
+    return <FileText className="h-4 w-4 text-gray-500" />;
+  };
+
+  const canPreview = (fileType: string, fileName: string) => {
+    return fileType.startsWith('image/') || 
+           fileType.startsWith('audio/') || 
+           fileType.startsWith('video/') ||
+           fileName.match(/\.(mp3|wav|ogg|m4a|aac|mp4|webm|mov)$/i);
+  };
+
+  const renderMediaPreview = (attachment: Attachment) => {
+    const { data } = supabase.storage
+      .from('complaint-attachments')
+      .getPublicUrl(attachment.file_path);
+
+    if (attachment.file_type.startsWith('image/')) {
+      return (
+        <div className="mt-2">
+          <img 
+            src={data.publicUrl} 
+            alt={attachment.file_name}
+            className="max-w-xs max-h-40 rounded border"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+        </div>
+      );
+    }
+
+    if (attachment.file_type.startsWith('audio/') || attachment.file_name.match(/\.(mp3|wav|ogg|m4a|aac)$/i)) {
+      return (
+        <div className="mt-2">
+          <audio controls className="w-full max-w-xs">
+            <source src={data.publicUrl} type={attachment.file_type} />
+            Your browser does not support the audio element.
+          </audio>
+        </div>
+      );
+    }
+
+    if (attachment.file_type.startsWith('video/') || attachment.file_name.match(/\.(mp4|webm|mov)$/i)) {
+      return (
+        <div className="mt-2">
+          <video controls className="w-full max-w-xs max-h-40">
+            <source src={data.publicUrl} type={attachment.file_type} />
+            Your browser does not support the video element.
+          </video>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   if (roleLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -384,29 +454,39 @@ const ComplaintDetails = () => {
               ) : (
                 <div className="space-y-3">
                   {attachments.map((attachment) => (
-                    <div key={attachment.id} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div className="flex-1">
-                        <p className="font-medium text-sm">{attachment.file_name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatFileSize(attachment.file_size)} • {attachment.file_type}
-                        </p>
+                    <div key={attachment.id} className="p-4 border rounded-lg bg-card">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center flex-1">
+                          {getFileIcon(attachment.file_type, attachment.file_name)}
+                          <div className="ml-3 flex-1">
+                            <p className="font-medium text-sm">{attachment.file_name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {formatFileSize(attachment.file_size)} • {attachment.file_type || 'Unknown type'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex gap-1">
+                          {canPreview(attachment.file_type, attachment.file_name) && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => viewFile(attachment)}
+                              title="Preview"
+                            >
+                              <PlayCircle className="h-4 w-4" />
+                            </Button>
+                          )}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => downloadFile(attachment)}
+                            title="Download"
+                          >
+                            <Download className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex gap-1">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => viewFile(attachment)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => downloadFile(attachment)}
-                        >
-                          <Download className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      {renderMediaPreview(attachment)}
                     </div>
                   ))}
                 </div>

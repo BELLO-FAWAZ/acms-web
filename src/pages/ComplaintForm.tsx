@@ -273,13 +273,13 @@ const ComplaintForm = () => {
                           multiple
                           className="sr-only"
                           onChange={handleFileChange}
-                          accept="image/*,.pdf,.doc,.docx"
+                          accept="image/*,.pdf,.doc,.docx,audio/*,video/*,.mp3,.mp4,.wav,.avi,.mov,.wmv,.flv,.webm,.ogg,.m4a"
                         />
                       </label>
                       <p className="pl-1">or drag and drop</p>
                     </div>
                     <p className="text-xs text-gray-500">
-                      PNG, JPG, PDF, DOC up to 10MB each
+                      Images, documents (PDF, DOC), audio, and video files up to 10MB each
                     </p>
                   </div>
                 </div>
